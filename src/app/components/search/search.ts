@@ -27,8 +27,8 @@ export class SearchComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Verifica se o usuário é médico
-    this.isMedico = this.authService.isMedico();
+    // Verifica se o usuário é médico e está autenticado
+    this.checkMedicoStatus();
     
     // Verifica se há uma query na URL
     this.route.queryParams.subscribe(params => {
@@ -38,6 +38,18 @@ export class SearchComponent implements OnInit {
         this.performSearch();
       }
     });
+  }
+
+  checkMedicoStatus() {
+    // Verifica se há token de autenticação
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.isMedico = false;
+      return;
+    }
+    
+    // Verifica se o usuário é médico
+    this.isMedico = this.authService.isMedico();
   }
 
   performSearch() {
@@ -70,6 +82,20 @@ export class SearchComponent implements OnInit {
   }
 
   viewPatientProfile(patientId: number) {
+    // Verifica se o usuário é médico antes de permitir acesso
+    if (!this.isMedico) {
+      // Redireciona para login se não for médico
+      this.router.navigate(['/login'], { queryParams: { redirect: '/search', message: 'Acesso restrito a médicos' } });
+      return;
+    }
+    
+    // Verifica se está autenticado
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login'], { queryParams: { redirect: '/search', message: 'Faça login para acessar' } });
+      return;
+    }
+    
     this.router.navigate(['/dashboard'], { queryParams: { id: patientId } });
   }
 

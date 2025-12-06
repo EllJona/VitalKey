@@ -65,6 +65,19 @@
             <p class="info-value">{{ medico.crm }}</p>
           </div>
 
+          <!-- Email -->
+          @if (medico.email) {
+            <div class="info-card green-card">
+              <h3 class="info-card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                E-mail
+              </h3>
+              <p class="info-value">{{ medico.email }}</p>
+            </div>
+          }
+
           <!-- Especialidade -->
           @if (medico.especialidade) {
             <div class="info-card purple-card">
@@ -91,6 +104,94 @@
       </div>
     </main>
   </div>
+
+  <!-- Modal de Edição -->
+  @if (showEditModal) {
+    <div class="modal-overlay" (click)="closeEditModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title">Editar Informações</h2>
+          <button class="modal-close" (click)="closeEditModal()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editNome" class="form-label">Nome completo *</label>
+            <input 
+              type="text" 
+              id="editNome" 
+              [(ngModel)]="editNome" 
+              name="editNome"
+              class="form-input"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editEmail" class="form-label">E-mail *</label>
+            <input 
+              type="email" 
+              id="editEmail" 
+              [(ngModel)]="editEmail" 
+              name="editEmail"
+              class="form-input"
+              placeholder="exemplo@mail.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editSenha" class="form-label">Nova Senha (deixe em branco para não alterar)</label>
+            <input 
+              type="password" 
+              id="editSenha" 
+              [(ngModel)]="editSenha" 
+              name="editSenha"
+              class="form-input"
+              placeholder="Digite uma nova senha"
+            />
+            <p class="password-hint">A senha precisa ter pelo menos 8 caracteres incluindo letras e números</p>
+          </div>
+
+          <div class="form-group">
+            <label for="editConfirmarSenha" class="form-label">Confirmar Nova Senha</label>
+            <input 
+              type="password" 
+              id="editConfirmarSenha" 
+              [(ngModel)]="editConfirmarSenha" 
+              name="editConfirmarSenha"
+              class="form-input"
+              placeholder="Confirme a nova senha"
+            />
+          </div>
+
+          @if (editErrorMessage) {
+            <div class="error-message">
+              {{ editErrorMessage }}
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeEditModal()" [disabled]="isSaving">
+            Cancelar
+          </button>
+          <button type="button" class="btn-save" (click)="saveMedicoInfo()" [disabled]="isSaving">
+            @if (isSaving) {
+              Salvando...
+            } @else {
+              Salvar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 } @else if (patient) {
   <!-- Dashboard do Paciente (quando há ID na query) -->
   <div class="dashboard-container">
