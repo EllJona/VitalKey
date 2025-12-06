@@ -268,6 +268,8 @@
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 300px;
 }
 
 .edit-button::before {
@@ -319,6 +321,9 @@
   min-height: 48px;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: var(--shadow-sm);
 }
 
 .logout-button::before {
@@ -354,6 +359,7 @@
 
 .edit-button-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: var(--spacing-md);
@@ -361,6 +367,60 @@
   margin-top: var(--spacing-xl);
   width: 100%;
   flex-wrap: wrap;
+}
+
+.delete-button {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: var(--color-text-inverse);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-height: 48px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 300px;
+}
+
+.delete-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--transition-slow);
+}
+
+.delete-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.delete-button:hover::before {
+  left: 100%;
+}
+
+.delete-button:active {
+  transform: translateY(0);
+}
+
+.delete-button svg {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  z-index: var(--z-base);
 }
 
 .contato-item {

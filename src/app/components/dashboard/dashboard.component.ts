@@ -503,4 +503,61 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  deletePatientProfile() {
+    if (!this.currentPatientId) {
+      if (this.patient?.id) {
+        this.currentPatientId = this.patient.id;
+      } else {
+        alert('ID do paciente não encontrado');
+        return;
+      }
+    }
+
+    const patientName = this.patient?.nome || 'este paciente';
+    const confirmMessage = `Tem certeza que deseja deletar o perfil de ${patientName}?\n\nEsta ação não pode ser desfeita.`;
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.patientService.deletePatient(this.currentPatientId).subscribe({
+      next: () => {
+        alert('Perfil deletado com sucesso!');
+        // Redireciona para a tela de pesquisa
+        this.router.navigate(['/search']);
+      },
+      error: (error) => {
+        console.error('Erro ao deletar paciente:', error);
+        alert('Erro ao deletar perfil. Tente novamente.');
+      }
+    });
+  }
+
+  deleteMedicoAccount() {
+    if (!this.medico || !this.medico.id) {
+      alert('Dados do médico não encontrados');
+      return;
+    }
+
+    const medicoName = this.medico.nome || 'sua conta';
+    const confirmMessage = `Tem certeza que deseja deletar ${medicoName}?\n\nEsta ação não pode ser desfeita e você perderá acesso permanente ao sistema.`;
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.authService.deleteMedicoById(this.medico.id).subscribe({
+      next: () => {
+        alert('Conta deletada com sucesso!');
+        // Faz logout e redireciona para home
+        this.authService.logout();
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        console.error('Erro ao deletar conta do médico:', error);
+        alert('Erro ao deletar conta. Tente novamente.');
+      }
+    });
+  }
 }

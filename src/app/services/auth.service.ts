@@ -262,6 +262,32 @@ export class AuthService {
   }
 
   /**
+   * Deleta um médico por ID via API
+   * @param id - ID do médico
+   * @returns Observable<void>
+   */
+  deleteMedicoById(id: number): Observable<void> {
+    return this.apiService.delete<void>(`/medico/${id}`);
+  }
+
+  /**
+   * Deleta o próprio perfil do médico logado via API
+   * Usa o ID do médico logado
+   * @returns Observable<void>
+   */
+  deleteMedico(): Observable<void> {
+    // Busca o ID do médico logado e deleta usando o ID
+    return this.getCurrentMedico().pipe(
+      switchMap(medico => {
+        if (!medico || !medico.id) {
+          return throwError(() => new Error('Médico não encontrado ou ID inválido'));
+        }
+        return this.deleteMedicoById(medico.id);
+      })
+    );
+  }
+
+  /**
    * Registra novo usuário via API
    * @param userData - Dados do usuário
    * @returns Observable<boolean> - true se registro foi bem-sucedido
