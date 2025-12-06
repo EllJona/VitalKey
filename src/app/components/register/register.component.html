@@ -1,0 +1,158 @@
+<div class="register-container">
+  <!-- Header -->
+  <header class="register-header">
+    <div class="logo-container" (click)="goToHome()">
+      <div class="logo-icon">
+        <div class="logo-circle">
+          <div class="logo-dot dot-1"></div>
+          <div class="logo-dot dot-2"></div>
+          <div class="logo-dot dot-3"></div>
+        </div>
+      </div>
+      <span class="logo-text">vitalkey</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="register-main">
+    <div class="register-card">
+      <!-- Form Side -->
+      <div class="form-side">
+        <h1 class="form-title">Olá {{ tipoPerfil === 'admin' ? 'administrador' : tipoPerfil === 'profissional' ? 'profissional' : 'paciente' }}!</h1>
+        <p class="form-description">
+          Estamos construindo uma plataforma exclusiva para você, com todo seu histórico de saúde num lugar só. 
+          Se quiser estar entre as primeiras pessoas a testá-la, preencha o formulário abaixo.
+        </p>
+
+        <form (ngSubmit)="onSubmit()" class="register-form">
+          <div class="form-group">
+            <label for="nome" class="form-label">Nome completo</label>
+            <input 
+              type="text" 
+              id="nome" 
+              [(ngModel)]="nome" 
+              name="nome"
+              class="form-input"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">E-mail</label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="email" 
+              name="email"
+              class="form-input"
+              placeholder="exemplo@mail.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="celular" class="form-label">Celular</label>
+            <input 
+              type="tel" 
+              id="celular" 
+              [(ngModel)]="celular" 
+              name="celular"
+              class="form-input"
+              placeholder="(00) 00000-0000"
+              required
+            />
+          </div>
+
+          @if (tipoPerfil === 'profissional') {
+            <div class="form-group">
+              <label for="especialidade" class="form-label">Especialidade</label>
+              <select 
+                id="especialidade" 
+                [(ngModel)]="especialidade" 
+                name="especialidade"
+                class="form-input form-select"
+                required
+              >
+                <option value="">Selecione uma especialidade</option>
+                @for (esp of especialidades; track esp) {
+                  <option [value]="esp">{{ esp }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="senha" class="form-label">Senha</label>
+            <div class="password-input-wrapper">
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                id="senha" 
+                [(ngModel)]="senha" 
+                name="senha"
+                class="form-input"
+                placeholder="Crie aqui sua senha"
+                required
+              />
+              <button 
+                type="button" 
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                aria-label="Mostrar/ocultar senha"
+              >
+                <svg [class.hidden]="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <svg [class.hidden]="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                </svg>
+              </button>
+            </div>
+            <p class="password-hint">A senha precisa ter pelo menos 8 caracteres incluindo letras e números</p>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+            <input 
+              type="password" 
+              id="confirmarSenha" 
+              [(ngModel)]="confirmarSenha" 
+              name="confirmarSenha"
+              class="form-input"
+              placeholder="Confirme sua senha"
+              required
+            />
+          </div>
+
+          <div class="form-group checkbox-group">
+            <input 
+              type="checkbox" 
+              id="termos" 
+              [(ngModel)]="aceitarTermos" 
+              name="termos"
+              class="checkbox-input"
+            />
+            <label for="termos" class="checkbox-label">
+              Eu concordo com os Termos e condições de uso
+            </label>
+          </div>
+
+          @if (errorMessage) {
+            <div class="error-message">
+              {{ errorMessage }}
+            </div>
+          }
+
+          <button type="submit" class="submit-button">
+            Desbloquear teste grátis
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Background Decorations -->
+  <div class="bg-decoration"></div>
+</div>
+

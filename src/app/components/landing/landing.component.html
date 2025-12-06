@@ -1,0 +1,102 @@
+<div class="landing-container">
+  <!-- Header -->
+  <header class="landing-header">
+    <div class="logo-container" (click)="goToHome()">
+      <div class="logo-icon">
+        <div class="logo-circle">
+          <div class="logo-dot dot-1"></div>
+          <div class="logo-dot dot-2"></div>
+          <div class="logo-dot dot-3"></div>
+        </div>
+      </div>
+      <span class="logo-text">vitalkey</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="landing-main">
+    <h1 class="landing-title">O prontuário que facilita sua vida</h1>
+    <p class="landing-subtitle">Não pedimos dados de pagamento. Selecione seu perfil:</p>
+
+    <!-- Profile Cards -->
+    <div class="profile-cards">
+      <div 
+        class="profile-card" 
+        [class.selected]="selectedProfile === 'admin'"
+        (click)="selectProfile('admin')"
+      >
+        <div class="profile-illustration">
+          <svg viewBox="0 0 200 200" fill="none">
+            <!-- Person sitting at desk -->
+            <rect x="40" y="80" width="120" height="80" rx="8" fill="#14b8a6" opacity="0.2"/>
+            <circle cx="100" cy="60" r="25" fill="#14b8a6"/>
+            <rect x="75" y="85" width="50" height="60" rx="5" fill="#14b8a6"/>
+            <rect x="30" y="100" width="60" height="40" rx="4" fill="#0f766e"/>
+            <rect x="110" y="100" width="60" height="40" rx="4" fill="#0f766e"/>
+            <rect x="50" y="120" width="30" height="20" rx="2" fill="#0d9488"/>
+            <rect x="120" y="120" width="30" height="20" rx="2" fill="#0d9488"/>
+          </svg>
+        </div>
+        <p class="profile-text">Sou da área administrativa/recepção</p>
+      </div>
+
+      <div 
+        class="profile-card" 
+        [class.selected]="selectedProfile === 'profissional'"
+        (click)="selectProfile('profissional')"
+      >
+        <div class="profile-illustration">
+          <svg viewBox="0 0 200 200" fill="none">
+            <!-- Health professional -->
+            <circle cx="100" cy="60" r="25" fill="#14b8a6"/>
+            <rect x="75" y="85" width="50" height="80" rx="5" fill="#14b8a6"/>
+            <rect x="85" y="100" width="30" height="40" rx="4" fill="#0f766e"/>
+            <rect x="60" y="110" width="80" height="15" rx="3" fill="#0d9488"/>
+            <rect x="70" y="130" width="60" height="20" rx="3" fill="#0d9488"/>
+            <circle cx="100" cy="50" r="8" fill="#0f766e" opacity="0.3"/>
+          </svg>
+        </div>
+        <p class="profile-text">Sou profissional de saúde</p>
+      </div>
+
+      <div 
+        class="profile-card" 
+        [class.selected]="selectedProfile === 'paciente'"
+        (click)="selectProfile('paciente')"
+      >
+        <div class="profile-illustration">
+          <svg viewBox="0 0 200 200" fill="none">
+            <!-- Patient with crutches -->
+            <circle cx="100" cy="60" r="25" fill="#14b8a6"/>
+            <rect x="75" y="85" width="50" height="80" rx="5" fill="#14b8a6"/>
+            <rect x="70" y="100" width="15" height="60" rx="2" fill="#0f766e"/>
+            <rect x="115" y="100" width="15" height="60" rx="2" fill="#0f766e"/>
+            <rect x="80" y="140" width="40" height="25" rx="3" fill="#0d9488"/>
+            <line x1="50" y1="120" x2="70" y2="140" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
+            <line x1="150" y1="120" x2="130" y2="140" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="profile-text">Sou paciente</p>
+      </div>
+    </div>
+
+    <!-- CTA Button -->
+    <button 
+      class="cta-button" 
+      [class.disabled]="!selectedProfile"
+      (click)="proceedToRegister()"
+      [disabled]="!selectedProfile"
+    >
+      Prosseguir com o teste grátis
+    </button>
+
+    <!-- Login Link -->
+    <p class="login-link">
+      Já é cliente? <a (click)="goToLogin()">Entre com seu login</a>
+    </p>
+  </main>
+
+  <!-- Background Decorations -->
+  <div class="bg-decoration"></div>
+</div>
+

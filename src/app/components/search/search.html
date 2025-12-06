@@ -1,0 +1,116 @@
+<div class="search-container">
+  <!-- Header -->
+  <header class="search-header">
+    <div class="logo-container" (click)="goToHome()">
+      <div class="logo-icon">
+        <div class="logo-circle">
+          <div class="logo-dot dot-1"></div>
+          <div class="logo-dot dot-2"></div>
+          <div class="logo-dot dot-3"></div>
+        </div>
+      </div>
+      <span class="logo-text">vitalkey</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="search-main">
+    <!-- Search Section -->
+    <div class="search-section">
+      <h1 class="search-title">Buscar Perfis</h1>
+      <p class="search-subtitle">Pesquise por nome, tipo sanguíneo, alergias, doenças ou medicamentos</p>
+      
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Digite para buscar..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput($event)"
+          autofocus
+        />
+        @if (searchQuery) {
+          <button class="clear-button" (click)="clearSearch()" aria-label="Limpar busca">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Buscando...</p>
+      </div>
+    } @else if (searchQuery && searchResults.length === 0) {
+      <div class="no-results">
+        <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="no-results-text">Nenhum resultado encontrado para "{{ searchQuery }}"</p>
+        <p class="no-results-hint">Tente buscar por nome, tipo sanguíneo ou outras informações</p>
+      </div>
+    } @else if (searchResults.length > 0) {
+      <div class="results-section">
+        <h2 class="results-title">{{ searchResults.length }} resultado(s) encontrado(s)</h2>
+        <div class="results-grid">
+          @for (patient of searchResults; track patient.id) {
+            <div class="patient-card">
+              <div class="patient-card-header">
+                <div class="patient-avatar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <div class="patient-info">
+                  <h3 class="patient-name">{{ patient.nome }}</h3>
+                  <p class="patient-blood-type">Tipo Sanguíneo: {{ patient.tipoSanguineo }}</p>
+                </div>
+              </div>
+              
+              <div class="patient-details">
+                @if (patient.alergias.length > 0) {
+                  <div class="detail-item">
+                    <span class="detail-label">Alergias:</span>
+                    <span class="detail-value">{{ patient.alergias.join(', ') }}</span>
+                  </div>
+                }
+                @if (patient.doencas.length > 0) {
+                  <div class="detail-item">
+                    <span class="detail-label">Doenças:</span>
+                    <span class="detail-value">{{ patient.doencas.join(', ') }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="patient-actions">
+                <button class="action-button public-button" (click)="viewPublicProfile(patient.id)">
+                  Ver Perfil Público
+                </button>
+                @if (isMedico) {
+                  <button class="action-button private-button" (click)="viewPatientProfile(patient.id)">
+                    Ver Perfil Completo
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <p class="empty-text">Digite algo para começar a buscar</p>
+        <p class="empty-hint">Você pode buscar por nome, tipo sanguíneo, alergias, doenças ou medicamentos</p>
+      </div>
+    }
+  </main>
+</div>

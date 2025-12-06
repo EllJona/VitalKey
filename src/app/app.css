@@ -1,0 +1,15 @@
+/* Container principal com animações suaves */
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Transições suaves para o router outlet */
+router-outlet + * {
+  display: block;
+  width: 100%;
+  animation: fadeIn 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
