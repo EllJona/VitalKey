@@ -136,4 +136,20 @@ export class LoginComponent implements OnInit {
     // Permite navegar para home normalmente
     this.router.navigate(['/home']);
   }
+
+  accessWithoutLogin() {
+    // Verifica se há uma última rota acessada no sessionStorage
+    const lastRoute = sessionStorage.getItem('lastRoute');
+    
+    // Lista de rotas públicas permitidas
+    const publicRoutes = ['/home', '/search', '/public'];
+    
+    // Se houver uma última rota e ela for pública, redireciona para lá
+    if (lastRoute && publicRoutes.some(route => lastRoute.startsWith(route))) {
+      this.router.navigateByUrl(lastRoute);
+    } else {
+      // Caso padrão: redireciona para home
+      this.router.navigate(['/home']);
+    }
+  }
 }
