@@ -114,6 +114,19 @@ export class DashboardComponent implements OnInit {
     alert('Funcionalidade de edição em desenvolvimento!');
   }
 
+  /**
+   * Separa os contatos de emergência por vírgula e retorna um array
+   * @param contatoEmergencia - String com contatos separados por vírgula
+   * @returns Array de strings com cada contato
+   */
+  getContatosEmergencia(contatoEmergencia: string): string[] {
+    if (!contatoEmergencia) {
+      return [];
+    }
+    // Separa por vírgula e remove espaços em branco no início/fim
+    return contatoEmergencia.split(',').map(contato => contato.trim()).filter(contato => contato.length > 0);
+  }
+
   goToHome() {
     this.router.navigate(['/home']);
   }

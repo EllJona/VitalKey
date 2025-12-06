@@ -50,12 +50,6 @@
             </svg>
             {{ medico.nome }}
           </h2>
-          <button class="edit-button" (click)="editInfo()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Editar Informações
-          </button>
         </div>
 
         <!-- Médico Info Grid -->
@@ -84,6 +78,16 @@
             </div>
           }
         </div>
+      </div>
+
+      <!-- Botão Editar Informações no final -->
+      <div class="edit-button-container">
+        <button class="edit-button" (click)="editInfo()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Editar Informações
+        </button>
       </div>
     </main>
   </div>
@@ -133,12 +137,6 @@
             </svg>
             {{ patient.nome }}
           </h2>
-          <button class="edit-button" (click)="editInfo()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Editar Informações
-          </button>
         </div>
 
         <!-- Basic Info Grid -->
@@ -196,7 +194,13 @@
               </svg>
               Contato de Emergência
             </h3>
-            <p class="info-text">{{ patient.contatoEmergencia }}</p>
+            <div class="info-text">
+              @if (patient.contatoEmergencia) {
+                @for (contato of getContatosEmergencia(patient.contatoEmergencia); track contato) {
+                  <p class="contato-item">{{ contato }}</p>
+                }
+              }
+            </div>
           </div>
         </div>
 

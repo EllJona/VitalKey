@@ -106,7 +106,7 @@ export class AuthService {
         // Salva o token
         localStorage.setItem('token', token);
         
-        // Busca os dados do médico logado usando GET /me
+        // Busca os dados do médico logado usando GET /medico/me
         return this.getCurrentMedico().pipe(
           map(medico => {
             if (medico) {
@@ -220,21 +220,35 @@ export class AuthService {
     email: string;
     senha: string;
   }): Observable<MedicoResponse> {
-    return this.apiService.post<MedicoResponse>('/medicos', medicoData);
+    return this.apiService.post<MedicoResponse>('/medico', medicoData);
   }
 
   /**
-   * Atualiza dados do médico via API
-   * @param id - ID do médico
+   * Atualiza dados do médico logado via API
    * @param medicoData - Dados atualizados (parciais)
    * @returns Observable<MedicoResponse>
    */
-  updateMedico(id: number, medicoData: Partial<{
+  updateMedico(medicoData: Partial<{
     nome: string;
     email: string;
     senha: string;
   }>): Observable<MedicoResponse> {
-    return this.apiService.patch<MedicoResponse>(`/medicos/${id}`, medicoData);
+    return this.apiService.patch<MedicoResponse>('/medico/me', medicoData);
+  }
+
+  /**
+   * Atualiza dados de um médico específico via API (requer permissões admin)
+   * @param id - ID do médico
+   * @param medicoData - Dados atualizados (parciais)
+   * @returns Observable<MedicoResponse>
+   */
+  updateMedicoById(id: number, medicoData: Partial<{
+    nome: string;
+    especialidade?: string;
+    email: string;
+    senha: string;
+  }>): Observable<MedicoResponse> {
+    return this.apiService.patch<MedicoResponse>(`/medico/${id}`, medicoData);
   }
 
   /**
@@ -244,7 +258,7 @@ export class AuthService {
    * @returns Observable<MedicoResponse>
    */
   updateMedicoStatus(id: number, ativo: boolean): Observable<MedicoResponse> {
-    return this.apiService.patch<MedicoResponse>(`/medicos/${id}/status`, { ativo });
+    return this.apiService.patch<MedicoResponse>(`/medico/${id}/status`, { ativo });
   }
 
   /**
@@ -345,7 +359,7 @@ export class AuthService {
   }
 
   /**
-   * Busca os dados do médico logado via GET /me
+   * Busca os dados do médico logado via GET /medico/me
    * Requer token de autenticação (adicionado automaticamente pelo interceptor)
    * @returns Observable<MedicoResponse | null>
    */
@@ -357,7 +371,7 @@ export class AuthService {
       return of(null);
     }
 
-    return this.apiService.get<MedicoResponse>('/medicos/me').pipe(
+    return this.apiService.get<MedicoResponse>('/medico/me').pipe(
       map(medico => {
         return medico;
       }),

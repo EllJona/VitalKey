@@ -8,12 +8,12 @@ import { inject } from '@angular/core';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Verifica se é uma requisição que não precisa de token
   // POST /login - login (OAuth2PasswordRequestForm)
-  // POST /medicos - criar médico (registro) - apenas se for exatamente /medicos
+  // POST /medico - criar médico (registro) - apenas se for exatamente /medico
   // POST /register - registro genérico (se existir)
   const url = req.url;
   const isLogin = url.includes('/login') && !url.includes('/login/'); // /login mas não /login/medico ou outras variações
-  // Verifica se termina com /medicos mas não contém /medicos/ (para não bloquear /medicos/me, /medicos/{id}, etc)
-  const isCreateMedico = url.endsWith('/medicos') && !url.includes('/medicos/');
+  // Verifica se termina com /medico mas não contém /medico/ (para não bloquear /medico/me, /medico/{id}, etc)
+  const isCreateMedico = url.endsWith('/medico') && !url.includes('/medico/');
   const isRegister = url.includes('/register');
   const isPublicEndpoint = isLogin || isCreateMedico || isRegister;
   
