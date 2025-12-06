@@ -87,14 +87,13 @@ export class AuthService {
    * @returns Observable<boolean> - true se login foi bem-sucedido
    */
   login(login: string, senha: string): Observable<boolean> {
-    // A documentação especifica que o body deve ser JSON com "login" e "senha"
-    const loginData = {
-      login: login,
-      senha: senha
-    };
+    // OAuth2PasswordRequestForm espera username e password no formato form-urlencoded
+    const formData = new URLSearchParams();
+    formData.set('username', login);  // OAuth2PasswordRequestForm usa 'username' para CRM ou email
+    formData.set('password', senha);
     
-    // Usa POST JSON (não form-urlencoded)
-    return this.apiService.post<any>('/login/medico', loginData).pipe(
+    // Usa postFormData para enviar como application/x-www-form-urlencoded
+    return this.apiService.postFormData<any>('/login', formData).pipe(
       switchMap(response => {
         // OAuth2 retorna: { access_token: "...", token_type: "bearer" }
         const token = response.access_token;
