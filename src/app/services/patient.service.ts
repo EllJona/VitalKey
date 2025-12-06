@@ -75,12 +75,12 @@ export class PatientService {
   constructor(private apiService: ApiService) {}
 
   /**
-   * Busca um paciente por ID via API - informações básicas (público)
+   * Busca um paciente por ID via API - informações completas
    * @param id - ID do paciente
    * @returns Observable<Patient | undefined>
    */
   getPatientById(id: number): Observable<Patient | undefined> {
-    return this.apiService.get<Patient>(`/paciente/${id}`).pipe(
+    return this.apiService.get<Patient>(`/pacientes/${id}`).pipe(
       map(patient => {
         return patient;
       }),
@@ -97,18 +97,11 @@ export class PatientService {
    * Busca um paciente por ID com informações completas (requer autenticação)
    * @param id - ID do paciente
    * @returns Observable<Patient | undefined>
+   * @deprecated Use getPatientById() que já retorna informações completas
    */
   getPatientCompleto(id: number): Observable<Patient | undefined> {
-    return this.apiService.get<Patient>(`/paciente/${id}/completo`).pipe(
-      map(patient => {
-        return patient;
-      }),
-      catchError(error => {
-        console.error('Erro ao buscar paciente completo:', error);
-        // Fallback para informações básicas
-        return this.getPatientById(id);
-      })
-    );
+    // A rota GET /pacientes/{id} já retorna informações completas
+    return this.getPatientById(id);
   }
 
   /**
@@ -362,7 +355,7 @@ export class PatientService {
    * @returns Observable<Patient>
    */
   createPatient(patient: Omit<Patient, 'id'>): Observable<Patient> {
-    return this.apiService.post<Patient>('/paciente', patient);
+    return this.apiService.post<Patient>('/pacientes', patient);
   }
 
   /**
@@ -372,7 +365,7 @@ export class PatientService {
    * @returns Observable<Patient>
    */
   updatePatient(id: number, patient: Partial<Patient>): Observable<Patient> {
-    return this.apiService.patch<Patient>(`/paciente/${id}`, patient);
+    return this.apiService.patch<Patient>(`/pacientes/${id}`, patient);
   }
 
   /**
@@ -381,6 +374,17 @@ export class PatientService {
    * @returns Observable<void>
    */
   deletePatient(id: number): Observable<void> {
-    return this.apiService.delete<void>(`/paciente/${id}`);
+    return this.apiService.delete<void>(`/pacientes/${id}`);
+  }
+
+  /**
+   * Ativa/inativa um paciente via API
+   * @param id - ID do paciente
+   * @param ativo - Status ativo/inativo
+   * @returns Observable<Patient>
+   */
+  updatePatientStatus(id: number, ativo: boolean): Observable<Patient> {
+    // Nota: A documentação especifica /paciente/{id}/status (singular), não /pacientes/{id}/status
+    return this.apiService.patch<Patient>(`/paciente/${id}/status`, { ativo });
   }
 }

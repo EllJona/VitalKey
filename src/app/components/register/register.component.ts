@@ -16,6 +16,7 @@ export class RegisterComponent implements OnInit {
   nome: string = '';
   email: string = '';
   celular: string = '';
+  crm: string = '';
   especialidade: string = '';
   senha: string = '';
   confirmarSenha: string = '';
@@ -64,9 +65,15 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    if (this.tipoPerfil === 'profissional' && !this.especialidade) {
-      this.errorMessage = 'Por favor, selecione uma especialidade.';
-      return;
+    if (this.tipoPerfil === 'profissional') {
+      if (!this.crm) {
+        this.errorMessage = 'Por favor, informe o CRM.';
+        return;
+      }
+      if (!this.especialidade) {
+        this.errorMessage = 'Por favor, selecione uma especialidade.';
+        return;
+      }
     }
 
     if (this.senha.length < 8) {
@@ -90,13 +97,44 @@ export class RegisterComponent implements OnInit {
     }
 
     // Registro via API
+    // Se for profissional, usa createMedico diretamente
+    if (this.tipoPerfil === 'profissional') {
+      this.authService.createMedico({
+        nome: this.nome,
+        especialidade: this.especialidade,
+        crm: this.crm,
+        email: this.email,
+        senha: this.senha
+      }).subscribe({
+        next: (medico) => {
+          // Converte MedicoResponse para User e salva
+          const user = {
+            id: medico.id,
+            nome: medico.nome,
+            email: medico.email,
+            senha: '',
+            tipo: 'profissional' as const,
+            especialidade: medico.especialidade
+          };
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.error('Erro ao registrar médico:', error);
+          this.errorMessage = 'Erro ao conectar com o servidor. Tente novamente.';
+        }
+      });
+      return;
+    }
+
+    // Para outros tipos, usa o método register padrão
     this.authService.register({
       nome: this.nome,
       email: this.email,
       senha: this.senha,
       tipo: this.tipoPerfil,
       celular: this.celular,
-      especialidade: this.tipoPerfil === 'profissional' ? this.especialidade : undefined
+      especialidade: undefined // Não é profissional, então não precisa de especialidade
     }).subscribe({
       next: (success) => {
         if (success) {

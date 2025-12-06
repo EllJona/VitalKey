@@ -238,9 +238,6 @@
   border-color: var(--color-border-medium);
 }
 
-.crm-input {
-  text-transform: uppercase;
-}
 
 .password-input-wrapper {
   position: relative;

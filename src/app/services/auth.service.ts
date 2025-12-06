@@ -29,6 +29,8 @@ export interface MedicoResponse {
   nome: string;
   crm: string;
   especialidade?: string;
+  email: string;
+  ativo: boolean;
   senha?: string; // Geralmente não vem na resposta por segurança
 }
 
@@ -80,19 +82,19 @@ export class AuthService {
 
   /**
    * Realiza login via API
-   * @param crm - CRM do usuário (ex: "123456-SP")
+   * @param login - CRM ou email do médico
    * @param senha - Senha do usuário
    * @returns Observable<boolean> - true se login foi bem-sucedido
    */
-  login(crm: string, senha: string): Observable<boolean> {
-    // OAuth2PasswordRequestForm espera username e password no formato form-urlencoded
-    // O backend usa form_data.username para o CRM
-    const formData = new URLSearchParams();
-    formData.set('username', crm);  // OAuth2PasswordRequestForm usa 'username' para o CRM
-    formData.set('password', senha);
+  login(login: string, senha: string): Observable<boolean> {
+    // A documentação especifica que o body deve ser JSON com "login" e "senha"
+    const loginData = {
+      login: login,
+      senha: senha
+    };
     
-    // Usa postFormData para enviar como application/x-www-form-urlencoded
-    return this.apiService.postFormData<any>('/login', formData).pipe(
+    // Usa POST JSON (não form-urlencoded)
+    return this.apiService.post<any>('/login/medico', loginData).pipe(
       switchMap(response => {
         // OAuth2 retorna: { access_token: "...", token_type: "bearer" }
         const token = response.access_token;
@@ -113,7 +115,7 @@ export class AuthService {
               const user: User = {
                 id: medico.id,
                 nome: medico.nome,
-                email: medico.crm, // Usando CRM como email
+                email: medico.email || medico.crm, // Usa email se disponível, senão CRM
                 senha: '', // Não salvar senha
                 tipo: 'profissional',
                 especialidade: medico.especialidade
@@ -127,7 +129,7 @@ export class AuthService {
               const user: User = {
                 id: 0,
                 nome: '',
-                email: crm,
+                email: login,
                 senha: '',
                 tipo: 'profissional',
                 celular: ''
@@ -143,7 +145,7 @@ export class AuthService {
             const user: User = {
               id: 0,
               nome: '',
-              email: crm,
+              email: login,
               senha: '',
               tipo: 'profissional',
               celular: ''
@@ -175,7 +177,7 @@ export class AuthService {
         // Fallback para login local apenas em caso de erro de conexão
         if (error.status === 0 || error.status === 500) {
           console.warn('Usando fallback local devido a erro de conexão');
-          const user = this.users.find(u => u.email === crm && u.senha === senha);
+          const user = this.users.find(u => u.email === login && u.senha === senha);
           if (user) {
             this.currentUser = user;
             localStorage.setItem('currentUser', JSON.stringify(user));
@@ -208,11 +210,84 @@ export class AuthService {
   }
 
   /**
+   * Cria um novo médico via API
+   * @param medicoData - Dados do médico (MedicoCreate)
+   * @returns Observable<MedicoResponse>
+   */
+  createMedico(medicoData: {
+    nome: string;
+    especialidade: string;
+    crm: string;
+    email: string;
+    senha: string;
+  }): Observable<MedicoResponse> {
+    return this.apiService.post<MedicoResponse>('/medicos', medicoData);
+  }
+
+  /**
+   * Atualiza dados do médico via API
+   * @param id - ID do médico
+   * @param medicoData - Dados atualizados (parciais)
+   * @returns Observable<MedicoResponse>
+   */
+  updateMedico(id: number, medicoData: Partial<{
+    nome: string;
+    email: string;
+    senha: string;
+  }>): Observable<MedicoResponse> {
+    return this.apiService.patch<MedicoResponse>(`/medicos/${id}`, medicoData);
+  }
+
+  /**
+   * Ativa/inativa um médico via API
+   * @param id - ID do médico
+   * @param ativo - Status ativo/inativo
+   * @returns Observable<MedicoResponse>
+   */
+  updateMedicoStatus(id: number, ativo: boolean): Observable<MedicoResponse> {
+    return this.apiService.patch<MedicoResponse>(`/medicos/${id}/status`, { ativo });
+  }
+
+  /**
    * Registra novo usuário via API
    * @param userData - Dados do usuário
    * @returns Observable<boolean> - true se registro foi bem-sucedido
    */
   register(userData: Omit<User, 'id'>): Observable<boolean> {
+    // Se for profissional, usa a rota de criar médico
+    if (userData.tipo === 'profissional') {
+      // Extrai CRM do email ou usa um padrão (ajustar conforme necessário)
+      const crm = userData.email.split('@')[0] || '';
+      
+      return this.createMedico({
+        nome: userData.nome,
+        especialidade: userData.especialidade || '',
+        crm: crm,
+        email: userData.email,
+        senha: userData.senha
+      }).pipe(
+        map(medico => {
+          // Converte MedicoResponse para User
+          const user: User = {
+            id: medico.id,
+            nome: medico.nome,
+            email: medico.email || medico.crm,
+            senha: '',
+            tipo: 'profissional',
+            especialidade: medico.especialidade
+          };
+          this.currentUser = user;
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          return true;
+        }),
+        catchError(error => {
+          console.error('Erro no registro de médico:', error);
+          return of(false);
+        })
+      );
+    }
+    
+    // Para outros tipos, mantém o comportamento antigo (se necessário)
     return this.apiService.post<User>('/register', userData).pipe(
       map(newUser => {
         this.currentUser = newUser;
@@ -283,7 +358,7 @@ export class AuthService {
       return of(null);
     }
 
-    return this.apiService.get<MedicoResponse>('/me').pipe(
+    return this.apiService.get<MedicoResponse>('/medicos/me').pipe(
       map(medico => {
         return medico;
       }),
@@ -414,7 +489,7 @@ export class AuthService {
                   const user: User = {
                     id: medico.id,
                     nome: medico.nome,
-                    email: medico.crm,
+                    email: medico.email || medico.crm,
                     senha: '',
                     tipo: 'profissional',
                     especialidade: medico.especialidade

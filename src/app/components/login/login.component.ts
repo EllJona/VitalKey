@@ -28,8 +28,8 @@ export class LoginComponent {
 
   onCrmInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    // Converte para maiúsculas automaticamente
-    this.crm = input.value.toUpperCase();
+    // Mantém o valor como digitado (maiúsculas ou minúsculas)
+    this.crm = input.value;
   }
 
   onSubmit() {
@@ -40,23 +40,33 @@ export class LoginComponent {
       return;
     }
 
-    // Normaliza o CRM para maiúsculas e remove espaços
-    const normalizedCrm = this.crm.trim().toUpperCase().replace(/\s/g, '');
-
-    // Valida formato do CRM (ex: 123456-SP)
-    const crmPattern = /^\d{6}-[A-Z]{2}$/;
-    if (!crmPattern.test(normalizedCrm)) {
-      this.errorMessage = 'CRM inválido. Use o formato: 123456-SP';
+    // Remove espaços do início e fim
+    const trimmedInput = this.crm.trim().replace(/\s/g, '');
+    
+    // Detecta se é CRM ou email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const crmPattern = /^\d{6}-[A-Za-z]{2}$/i;
+    
+    let loginIdentifier: string;
+    
+    if (emailPattern.test(trimmedInput)) {
+      // É um email - mantém como está (case-insensitive mas preserva o original)
+      loginIdentifier = trimmedInput.toLowerCase();
+    } else if (crmPattern.test(trimmedInput)) {
+      // É um CRM - normaliza para maiúsculas
+      loginIdentifier = trimmedInput.toUpperCase();
+    } else {
+      this.errorMessage = 'Formato inválido. Use CRM (123456-SP) ou email (exemplo@email.com)';
       return;
     }
 
     // Usa o método assíncrono da API
-    this.authService.login(normalizedCrm, this.senha).subscribe({
+    this.authService.login(loginIdentifier, this.senha).subscribe({
       next: (success) => {
         if (success) {
           this.router.navigate(['/home']);
         } else {
-          this.errorMessage = 'CRM ou senha incorretos.';
+          this.errorMessage = 'CRM/Email ou senha incorretos.';
         }
       },
       error: (error) => {

@@ -20,12 +20,12 @@
       <div class="form-side">
         <h1 class="form-title">Bem-vindo de volta!</h1>
         <p class="form-description">
-          Entre com seu CRM e senha para acessar sua conta.
+          Entre com seu CRM ou Email e senha para acessar sua conta.
         </p>
 
         <form (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-group">
-            <label for="crm" class="form-label">CRM</label>
+            <label for="crm" class="form-label">CRM ou Email</label>
             <input 
               type="text" 
               id="crm" 
@@ -33,12 +33,11 @@
               (input)="onCrmInput($event)"
               name="crm"
               class="form-input crm-input"
-              placeholder="123456-SP"
-              pattern="[0-9]{6}-[A-Z]{2}"
-              maxlength="9"
+              placeholder="123456-SP ou email@exemplo.com"
+              maxlength="200"
               required
             />
-            <small class="form-hint">Formato: 123456-SP</small>
+            <small class="form-hint">Formato: 123456-SP ou email@exemplo.com</small>
           </div>
 
           <div class="form-group">
