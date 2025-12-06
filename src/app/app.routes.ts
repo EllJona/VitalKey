@@ -11,9 +11,13 @@ import { authGuard, roleGuard } from './guards/auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'landing', component: LandingComponent },
-  { path: 'public/:id', component: PublicAccessComponent },
+  { path: 'register', component: RegisterComponent }, // Público para criar conta
+  { path: 'public/:id', component: PublicAccessComponent }, // Acesso público a perfis
+  { 
+    path: 'landing', 
+    component: LandingComponent,
+    canActivate: [authGuard] // Requer autenticação
+  },
   { 
     path: 'home', 
     component: HomeComponent,

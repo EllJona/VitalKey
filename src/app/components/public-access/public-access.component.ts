@@ -47,4 +47,8 @@ export class PublicAccessComponent implements OnInit {
   goToHome() {
     this.router.navigate(['/home']);
   }
+
+  goToSearch() {
+    this.router.navigate(['/search']);
+  }
 }

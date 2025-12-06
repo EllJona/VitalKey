@@ -18,55 +18,340 @@
     <div class="register-card">
       <!-- Form Side -->
       <div class="form-side">
-        <h1 class="form-title">Olá {{ tipoPerfil === 'admin' ? 'administrador' : tipoPerfil === 'profissional' ? 'profissional' : 'paciente' }}!</h1>
+        <h1 class="form-title">Criar Perfil</h1>
         <p class="form-description">
-          Estamos construindo uma plataforma exclusiva para você, com todo seu histórico de saúde num lugar só. 
-          Se quiser estar entre as primeiras pessoas a testá-la, preencha o formulário abaixo.
+          Escolha o tipo de perfil que deseja criar
         </p>
 
-        <form (ngSubmit)="onSubmit()" class="register-form">
-          <div class="form-group">
-            <label for="nome" class="form-label">Nome completo</label>
-            <input 
-              type="text" 
-              id="nome" 
-              [(ngModel)]="nome" 
-              name="nome"
-              class="form-input"
-              placeholder="Digite seu nome"
-              required
-            />
+        <!-- Tabs Selection -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <button 
+              type="button"
+              class="tab-button" 
+              [class.active]="tipoPerfil === 'paciente'"
+              (click)="tipoPerfil = 'paciente'"
+            >
+              Sou Paciente
+            </button>
+            <button 
+              type="button"
+              class="tab-button" 
+              [class.active]="tipoPerfil === 'medico'"
+              (click)="tipoPerfil = 'medico'"
+            >
+              Sou Médico
+            </button>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="email" class="form-label">E-mail</label>
-            <input 
-              type="email" 
-              id="email" 
-              [(ngModel)]="email" 
-              name="email"
-              class="form-input"
-              placeholder="exemplo@mail.com"
-              required
-            />
-          </div>
+        <!-- Formulário de Paciente -->
+        @if (tipoPerfil === 'paciente') {
+          <form (ngSubmit)="onSubmit()" class="register-form">
+            <!-- Informações Básicas -->
+            <div class="form-section">
+              <h3 class="section-title">Informações Básicas</h3>
+              
+              <div class="form-group">
+                <label for="nome" class="form-label">Nome completo *</label>
+                <input 
+                  type="text" 
+                  id="nome" 
+                  [(ngModel)]="nome" 
+                  name="nome"
+                  class="form-input"
+                  placeholder="Digite seu nome"
+                  required
+                />
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label for="celular" class="form-label">Celular</label>
-            <input 
-              type="tel" 
-              id="celular" 
-              [(ngModel)]="celular" 
-              name="celular"
-              class="form-input"
-              placeholder="(00) 00000-0000"
-              required
-            />
-          </div>
+            <!-- Alergias -->
+            <div class="form-section">
+              <h3 class="section-title">Alergias</h3>
+              <div class="form-group">
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="alergiaInput" 
+                    name="alergiaInput"
+                    class="form-input"
+                    placeholder="Digite uma alergia"
+                    (keyup.enter)="addAlergia()"
+                  />
+                  <button type="button" class="add-button" (click)="addAlergia()">Adicionar</button>
+                </div>
+                @if (alergias.length > 0) {
+                  <div class="tags-container">
+                    @for (alergia of alergias; track $index) {
+                      <span class="tag">
+                        {{ alergia }}
+                        <button type="button" class="tag-remove" (click)="removeAlergia($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
 
-          @if (tipoPerfil === 'profissional') {
+            <!-- Doenças Crônicas -->
+            <div class="form-section">
+              <h3 class="section-title">Doenças Crônicas</h3>
+              <div class="form-group">
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="doencaInput" 
+                    name="doencaInput"
+                    class="form-input"
+                    placeholder="Digite uma doença crônica"
+                    (keyup.enter)="addDoenca()"
+                  />
+                  <button type="button" class="add-button" (click)="addDoenca()">Adicionar</button>
+                </div>
+                @if (doencasCronicas.length > 0) {
+                  <div class="tags-container">
+                    @for (doenca of doencasCronicas; track $index) {
+                      <span class="tag">
+                        {{ doenca }}
+                        <button type="button" class="tag-remove" (click)="removeDoenca($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Medicamentos Contínuos -->
+            <div class="form-section">
+              <h3 class="section-title">Medicamentos Contínuos</h3>
+              <div class="form-group">
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="medicamentoInput" 
+                    name="medicamentoInput"
+                    class="form-input"
+                    placeholder="Digite um medicamento"
+                    (keyup.enter)="addMedicamento()"
+                  />
+                  <button type="button" class="add-button" (click)="addMedicamento()">Adicionar</button>
+                </div>
+                @if (medicamentosContinuos.length > 0) {
+                  <div class="tags-container">
+                    @for (medicamento of medicamentosContinuos; track $index) {
+                      <span class="tag">
+                        {{ medicamento }}
+                        <button type="button" class="tag-remove" (click)="removeMedicamento($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Contatos de Emergência -->
+            <div class="form-section">
+              <h3 class="section-title">Contatos de Emergência</h3>
+              <div class="form-group">
+                <div class="contact-inputs">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="contatoNome" 
+                    name="contatoNome"
+                    class="form-input"
+                    placeholder="Nome do contato"
+                  />
+                  <input 
+                    type="tel" 
+                    [(ngModel)]="contatoTelefone" 
+                    name="contatoTelefone"
+                    class="form-input"
+                    placeholder="Telefone (11999998888)"
+                  />
+                  <button type="button" class="add-button" (click)="addContatoEmergencia()">Adicionar</button>
+                </div>
+                @if (contatosEmergencia.length > 0) {
+                  <div class="contacts-list">
+                    @for (contato of contatosEmergencia; track $index) {
+                      <div class="contact-item">
+                        <span>{{ contato.nome }} - {{ contato.telefone }}</span>
+                        <button type="button" class="remove-button" (click)="removeContatoEmergencia($index)">Remover</button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Informações Privadas -->
+            <div class="form-section">
+              <h3 class="section-title">Informações Privadas</h3>
+              
+              <div class="form-group">
+                <label for="tipoSanguineo" class="form-label">Tipo Sanguíneo</label>
+                <select 
+                  id="tipoSanguineo" 
+                  [(ngModel)]="tipoSanguineo" 
+                  name="tipoSanguineo"
+                  class="form-input form-select"
+                >
+                  <option value="">Selecione o tipo sanguíneo</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Cirurgias</label>
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="cirurgiaInput" 
+                    name="cirurgiaInput"
+                    class="form-input"
+                    placeholder="Digite uma cirurgia"
+                    (keyup.enter)="addCirurgia()"
+                  />
+                  <button type="button" class="add-button" (click)="addCirurgia()">Adicionar</button>
+                </div>
+                @if (cirurgias.length > 0) {
+                  <div class="tags-container">
+                    @for (cirurgia of cirurgias; track $index) {
+                      <span class="tag">
+                        {{ cirurgia }}
+                        <button type="button" class="tag-remove" (click)="removeCirurgia($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Internações Passadas</label>
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="internacaoInput" 
+                    name="internacaoInput"
+                    class="form-input"
+                    placeholder="Digite uma internação"
+                    (keyup.enter)="addInternacao()"
+                  />
+                  <button type="button" class="add-button" (click)="addInternacao()">Adicionar</button>
+                </div>
+                @if (internacoesPassadas.length > 0) {
+                  <div class="tags-container">
+                    @for (internacao of internacoesPassadas; track $index) {
+                      <span class="tag">
+                        {{ internacao }}
+                        <button type="button" class="tag-remove" (click)="removeInternacao($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Alterações em Exames</label>
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="alteracaoInput" 
+                    name="alteracaoInput"
+                    class="form-input"
+                    placeholder="Digite uma alteração"
+                    (keyup.enter)="addAlteracaoExame()"
+                  />
+                  <button type="button" class="add-button" (click)="addAlteracaoExame()">Adicionar</button>
+                </div>
+                @if (alteracoesExames.length > 0) {
+                  <div class="tags-container">
+                    @for (alteracao of alteracoesExames; track $index) {
+                      <span class="tag">
+                        {{ alteracao }}
+                        <button type="button" class="tag-remove" (click)="removeAlteracaoExame($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Histórico de Exames</label>
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="exameInput" 
+                    name="exameInput"
+                    class="form-input"
+                    placeholder="Digite um exame"
+                    (keyup.enter)="addHistoricoExame()"
+                  />
+                  <button type="button" class="add-button" (click)="addHistoricoExame()">Adicionar</button>
+                </div>
+                @if (historicoExames.length > 0) {
+                  <div class="tags-container">
+                    @for (exame of historicoExames; track $index) {
+                      <span class="tag">
+                        {{ exame }}
+                        <button type="button" class="tag-remove" (click)="removeHistoricoExame($index)">×</button>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input 
+                type="checkbox" 
+                id="termos" 
+                [(ngModel)]="aceitarTermos" 
+                name="termos"
+                class="checkbox-input"
+              />
+              <label for="termos" class="checkbox-label">
+                Eu concordo com os Termos e condições de uso
+              </label>
+            </div>
+
+            @if (errorMessage) {
+              <div class="error-message">
+                {{ errorMessage }}
+              </div>
+            }
+
+            <button type="submit" class="submit-button">
+              Criar Perfil de Paciente
+            </button>
+          </form>
+        }
+
+        <!-- Formulário de Médico -->
+        @if (tipoPerfil === 'medico') {
+          <form (ngSubmit)="onSubmit()" class="register-form">
             <div class="form-group">
-              <label for="crm" class="form-label">CRM</label>
+              <label for="nome-medico" class="form-label">Nome completo *</label>
+              <input 
+                type="text" 
+                id="nome-medico" 
+                [(ngModel)]="nome" 
+                name="nome"
+                class="form-input"
+                placeholder="Digite seu nome"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="crm" class="form-label">CRM *</label>
               <input 
                 type="text" 
                 id="crm" 
@@ -77,8 +362,9 @@
                 required
               />
             </div>
+
             <div class="form-group">
-              <label for="especialidade" class="form-label">Especialidade</label>
+              <label for="especialidade" class="form-label">Especialidade *</label>
               <select 
                 id="especialidade" 
                 [(ngModel)]="especialidade" 
@@ -92,74 +378,87 @@
                 }
               </select>
             </div>
-          }
 
-          <div class="form-group">
-            <label for="senha" class="form-label">Senha</label>
-            <div class="password-input-wrapper">
+            <div class="form-group">
+              <label for="email-medico" class="form-label">E-mail *</label>
               <input 
-                [type]="showPassword ? 'text' : 'password'" 
-                id="senha" 
-                [(ngModel)]="senha" 
-                name="senha"
+                type="email" 
+                id="email-medico" 
+                [(ngModel)]="email" 
+                name="email"
                 class="form-input"
-                placeholder="Crie aqui sua senha"
+                placeholder="joao.silva@example.com"
                 required
               />
-              <button 
-                type="button" 
-                class="password-toggle"
-                (click)="togglePasswordVisibility()"
-                aria-label="Mostrar/ocultar senha"
-              >
-                <svg [class.hidden]="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                <svg [class.hidden]="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                </svg>
-              </button>
             </div>
-            <p class="password-hint">A senha precisa ter pelo menos 8 caracteres incluindo letras e números</p>
-          </div>
 
-          <div class="form-group">
-            <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
-            <input 
-              type="password" 
-              id="confirmarSenha" 
-              [(ngModel)]="confirmarSenha" 
-              name="confirmarSenha"
-              class="form-input"
-              placeholder="Confirme sua senha"
-              required
-            />
-          </div>
-
-          <div class="form-group checkbox-group">
-            <input 
-              type="checkbox" 
-              id="termos" 
-              [(ngModel)]="aceitarTermos" 
-              name="termos"
-              class="checkbox-input"
-            />
-            <label for="termos" class="checkbox-label">
-              Eu concordo com os Termos e condições de uso
-            </label>
-          </div>
-
-          @if (errorMessage) {
-            <div class="error-message">
-              {{ errorMessage }}
+            <div class="form-group">
+              <label for="senha-medico" class="form-label">Senha *</label>
+              <div class="password-input-wrapper">
+                <input 
+                  [type]="showPassword ? 'text' : 'password'" 
+                  id="senha-medico" 
+                  [(ngModel)]="senha" 
+                  name="senha"
+                  class="form-input"
+                  placeholder="Crie aqui sua senha"
+                  required
+                />
+                <button 
+                  type="button" 
+                  class="password-toggle"
+                  (click)="togglePasswordVisibility()"
+                  aria-label="Mostrar/ocultar senha"
+                >
+                  <svg [class.hidden]="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  <svg [class.hidden]="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="password-hint">A senha precisa ter pelo menos 8 caracteres incluindo letras e números</p>
             </div>
-          }
 
-          <button type="submit" class="submit-button">
-            Desbloquear teste grátis
-          </button>
-        </form>
+            <div class="form-group">
+              <label for="confirmarSenha-medico" class="form-label">Confirmar Senha *</label>
+              <input 
+                type="password" 
+                id="confirmarSenha-medico" 
+                [(ngModel)]="confirmarSenha" 
+                name="confirmarSenha"
+                class="form-input"
+                placeholder="Confirme sua senha"
+                required
+              />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input 
+                type="checkbox" 
+                id="termos-medico" 
+                [(ngModel)]="aceitarTermos" 
+                name="termos"
+                class="checkbox-input"
+              />
+              <label for="termos-medico" class="checkbox-label">
+                Eu concordo com os Termos e condições de uso
+              </label>
+            </div>
+
+            @if (errorMessage) {
+              <div class="error-message">
+                {{ errorMessage }}
+              </div>
+            }
+
+            <button type="submit" class="submit-button">
+              Criar Perfil de Médico
+            </button>
+          </form>
+        }
       </div>
     </div>
   </main>
@@ -167,4 +466,3 @@
   <!-- Background Decorations -->
   <div class="bg-decoration"></div>
 </div>
-

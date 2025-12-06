@@ -85,4 +85,9 @@ export class SearchComponent implements OnInit {
   goToHome() {
     this.router.navigate(['/home']);
   }
+
+  goToSearch() {
+    // Já está na página de busca, apenas limpa a busca se necessário
+    this.clearSearch();
+  }
 }

@@ -22,6 +22,9 @@
   flex-shrink: 0;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo-container {
@@ -78,6 +81,58 @@
   font-weight: 600;
   color: #1e293b;
   letter-spacing: -0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: #64748b;
+  position: relative;
+}
+
+.icon-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: #14b8a6;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.icon-button:hover {
+  color: #14b8a6;
+  transform: translateY(-2px);
+}
+
+.icon-button:hover::after {
+  opacity: 0.1;
+}
+
+.icon-button:active {
+  transform: translateY(0);
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  z-index: 1;
 }
 
 .public-main {
@@ -248,13 +303,11 @@
 }
 
 .error-container {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  min-height: 60vh;
 }
 
 .error-content {
