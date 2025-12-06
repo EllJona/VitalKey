@@ -355,7 +355,7 @@ export class AuthService {
     this.currentUser = null;
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
-    this.router.navigate(['/']);
+    // Não redireciona automaticamente - deixa o componente decidir
   }
 
   /**
@@ -401,9 +401,40 @@ export class AuthService {
    * @returns boolean
    */
   isAuthenticated(): boolean {
-    const hasUser = this.currentUser !== null;
+    // Carrega o usuário do localStorage se ainda não estiver carregado
+    if (!this.currentUser) {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        try {
+          this.currentUser = JSON.parse(savedUser);
+        } catch (e) {
+          console.error('Erro ao parsear currentUser:', e);
+          this.currentUser = null;
+        }
+      }
+    }
+    
+    // Verifica se há token (principal indicador de autenticação)
     const hasToken = !!localStorage.getItem('token');
-    return hasUser && hasToken;
+    
+    // Se tem token, considera autenticado (mesmo que currentUser não esteja carregado ainda)
+    // O currentUser pode ser carregado depois
+    if (hasToken) {
+      // Se tem token mas não tem currentUser, tenta carregar
+      if (!this.currentUser) {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          try {
+            this.currentUser = JSON.parse(savedUser);
+          } catch (e) {
+            console.error('Erro ao parsear currentUser:', e);
+          }
+        }
+      }
+      return true;
+    }
+    
+    return false;
   }
 
   /**

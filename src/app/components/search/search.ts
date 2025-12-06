@@ -109,6 +109,7 @@ export class SearchComponent implements OnInit {
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 

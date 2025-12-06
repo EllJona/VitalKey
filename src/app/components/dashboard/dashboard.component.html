@@ -93,13 +93,19 @@
         </div>
       </div>
 
-      <!-- Botão Editar Informações no final -->
+      <!-- Botões de Ação no final -->
       <div class="edit-button-container">
         <button class="edit-button" (click)="editInfo()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
           </svg>
           Editar Informações
+        </button>
+        <button class="logout-button" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Sair
         </button>
       </div>
     </main>
@@ -376,6 +382,304 @@
           </div>
         }
       </div>
+
+      <!-- Botão Editar Informações (apenas para médicos) -->
+      @if (isMedico && patient) {
+        <div class="edit-button-container">
+          <button type="button" class="edit-button" (click)="editPatientInfo()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Editar Informações
+          </button>
+        </div>
+      }
     </main>
   </div>
 }
+
+<!-- Modal de Edição de Paciente (fora dos blocos condicionais) -->
+@if (showEditPatientModal) {
+  <div class="modal-overlay" (click)="closeEditPatientModal()">
+      <div class="modal-content modal-content-large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title">Editar Informações do Paciente</h2>
+          <button class="modal-close" (click)="closeEditPatientModal()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Nome -->
+          <div class="form-group">
+            <label for="editPatientNome" class="form-label">Nome completo *</label>
+            <input 
+              type="text" 
+              id="editPatientNome" 
+              [(ngModel)]="editPatientNome" 
+              name="editPatientNome"
+              class="form-input"
+              placeholder="Digite o nome"
+              required
+            />
+          </div>
+
+          <!-- Alergias -->
+          <div class="form-group">
+            <label class="form-label">Alergias</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientAlergiaInput" 
+                name="editPatientAlergiaInput"
+                class="form-input"
+                placeholder="Digite uma alergia"
+                (keyup.enter)="addPatientAlergia()"
+              />
+              <button type="button" class="add-button" (click)="addPatientAlergia()">Adicionar</button>
+            </div>
+            @if (editPatientAlergias.length > 0) {
+              <div class="tags-container">
+                @for (alergia of editPatientAlergias; track $index) {
+                  <span class="tag">
+                    {{ alergia }}
+                    <button type="button" class="tag-remove" (click)="removePatientAlergia($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Doenças Crônicas -->
+          <div class="form-group">
+            <label class="form-label">Doenças Crônicas</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientDoencaInput" 
+                name="editPatientDoencaInput"
+                class="form-input"
+                placeholder="Digite uma doença"
+                (keyup.enter)="addPatientDoenca()"
+              />
+              <button type="button" class="add-button" (click)="addPatientDoenca()">Adicionar</button>
+            </div>
+            @if (editPatientDoencas.length > 0) {
+              <div class="tags-container">
+                @for (doenca of editPatientDoencas; track $index) {
+                  <span class="tag">
+                    {{ doenca }}
+                    <button type="button" class="tag-remove" (click)="removePatientDoenca($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Medicamentos -->
+          <div class="form-group">
+            <label class="form-label">Medicamentos Contínuos</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientMedicamentoInput" 
+                name="editPatientMedicamentoInput"
+                class="form-input"
+                placeholder="Digite um medicamento"
+                (keyup.enter)="addPatientMedicamento()"
+              />
+              <button type="button" class="add-button" (click)="addPatientMedicamento()">Adicionar</button>
+            </div>
+            @if (editPatientMedicamentos.length > 0) {
+              <div class="tags-container">
+                @for (medicamento of editPatientMedicamentos; track $index) {
+                  <span class="tag">
+                    {{ medicamento }}
+                    <button type="button" class="tag-remove" (click)="removePatientMedicamento($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Contatos de Emergência -->
+          <div class="form-group">
+            <label class="form-label">Contatos de Emergência</label>
+            <div class="contact-inputs">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientContatoNome" 
+                name="editPatientContatoNome"
+                class="form-input"
+                placeholder="Nome do contato"
+              />
+              <input 
+                type="tel" 
+                [(ngModel)]="editPatientContatoTelefone" 
+                name="editPatientContatoTelefone"
+                class="form-input"
+                placeholder="Telefone"
+              />
+              <button type="button" class="add-button" (click)="addPatientContato()">Adicionar</button>
+            </div>
+            @if (editPatientContatos.length > 0) {
+              <div class="contacts-list">
+                @for (contato of editPatientContatos; track $index) {
+                  <div class="contact-item">
+                    <span>{{ contato.nome }} - {{ contato.telefone }}</span>
+                    <button type="button" class="remove-button" (click)="removePatientContato($index)">Remover</button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Tipo Sanguíneo -->
+          <div class="form-group">
+            <label for="editPatientTipoSanguineo" class="form-label">Tipo Sanguíneo</label>
+            <select 
+              id="editPatientTipoSanguineo" 
+              [(ngModel)]="editPatientTipoSanguineo" 
+              name="editPatientTipoSanguineo"
+              class="form-input form-select"
+            >
+              <option value="">Selecione o tipo sanguíneo</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+
+          <!-- Cirurgias -->
+          <div class="form-group">
+            <label class="form-label">Cirurgias</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientCirurgiaInput" 
+                name="editPatientCirurgiaInput"
+                class="form-input"
+                placeholder="Digite uma cirurgia"
+                (keyup.enter)="addPatientCirurgia()"
+              />
+              <button type="button" class="add-button" (click)="addPatientCirurgia()">Adicionar</button>
+            </div>
+            @if (editPatientCirurgias.length > 0) {
+              <div class="tags-container">
+                @for (cirurgia of editPatientCirurgias; track $index) {
+                  <span class="tag">
+                    {{ cirurgia }}
+                    <button type="button" class="tag-remove" (click)="removePatientCirurgia($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Internações -->
+          <div class="form-group">
+            <label class="form-label">Internações Passadas</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientInternacaoInput" 
+                name="editPatientInternacaoInput"
+                class="form-input"
+                placeholder="Digite uma internação"
+                (keyup.enter)="addPatientInternacao()"
+              />
+              <button type="button" class="add-button" (click)="addPatientInternacao()">Adicionar</button>
+            </div>
+            @if (editPatientInternacoes.length > 0) {
+              <div class="tags-container">
+                @for (internacao of editPatientInternacoes; track $index) {
+                  <span class="tag">
+                    {{ internacao }}
+                    <button type="button" class="tag-remove" (click)="removePatientInternacao($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Alterações em Exames -->
+          <div class="form-group">
+            <label class="form-label">Alterações em Exames</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientAlteracaoInput" 
+                name="editPatientAlteracaoInput"
+                class="form-input"
+                placeholder="Digite uma alteração"
+                (keyup.enter)="addPatientAlteracaoExame()"
+              />
+              <button type="button" class="add-button" (click)="addPatientAlteracaoExame()">Adicionar</button>
+            </div>
+            @if (editPatientAlteracoesExames.length > 0) {
+              <div class="tags-container">
+                @for (alteracao of editPatientAlteracoesExames; track $index) {
+                  <span class="tag">
+                    {{ alteracao }}
+                    <button type="button" class="tag-remove" (click)="removePatientAlteracaoExame($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Histórico de Exames -->
+          <div class="form-group">
+            <label class="form-label">Histórico de Exames</label>
+            <div class="input-with-button">
+              <input 
+                type="text" 
+                [(ngModel)]="editPatientExameInput" 
+                name="editPatientExameInput"
+                class="form-input"
+                placeholder="Digite um exame"
+                (keyup.enter)="addPatientHistoricoExame()"
+              />
+              <button type="button" class="add-button" (click)="addPatientHistoricoExame()">Adicionar</button>
+            </div>
+            @if (editPatientHistoricoExames.length > 0) {
+              <div class="tags-container">
+                @for (exame of editPatientHistoricoExames; track $index) {
+                  <span class="tag">
+                    {{ exame }}
+                    <button type="button" class="tag-remove" (click)="removePatientHistoricoExame($index)">×</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (editPatientErrorMessage) {
+            <div class="error-message">
+              {{ editPatientErrorMessage }}
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeEditPatientModal()" [disabled]="isSavingPatient">
+            Cancelar
+          </button>
+          <button type="button" class="btn-save" (click)="savePatientInfo()" [disabled]="isSavingPatient">
+            @if (isSavingPatient) {
+              Salvando...
+            } @else {
+              Salvar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }

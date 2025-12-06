@@ -31,6 +31,7 @@ export class LandingComponent {
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 }

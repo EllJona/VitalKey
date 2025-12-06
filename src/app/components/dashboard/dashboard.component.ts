@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PatientService } from '../../services/patient.service';
-import { PatientLegacy } from '../../models/patient.model';
+import { PatientLegacy, legacyToPatient, ContatoEmergencia } from '../../models/patient.model';
 import { AuthService, MedicoResponse } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -19,21 +19,50 @@ export class DashboardComponent implements OnInit {
   isMedico: boolean = false;
   isLoading: boolean = true;
   showEditModal: boolean = false;
+  showEditPatientModal: boolean = false;
   editNome: string = '';
   editEmail: string = '';
   editSenha: string = '';
   editConfirmarSenha: string = '';
   editErrorMessage: string = '';
   isSaving: boolean = false;
+  
+  // Variáveis para edição de paciente
+  editPatientNome: string = '';
+  editPatientAlergias: string[] = [];
+  editPatientAlergiaInput: string = '';
+  editPatientDoencas: string[] = [];
+  editPatientDoencaInput: string = '';
+  editPatientMedicamentos: string[] = [];
+  editPatientMedicamentoInput: string = '';
+  editPatientContatos: ContatoEmergencia[] = [];
+  editPatientContatoNome: string = '';
+  editPatientContatoTelefone: string = '';
+  editPatientTipoSanguineo: string = '';
+  editPatientCirurgias: string[] = [];
+  editPatientCirurgiaInput: string = '';
+  editPatientInternacoes: string[] = [];
+  editPatientInternacaoInput: string = '';
+  editPatientAlteracoesExames: string[] = [];
+  editPatientAlteracaoInput: string = '';
+  editPatientHistoricoExames: string[] = [];
+  editPatientExameInput: string = '';
+  editPatientErrorMessage: string = '';
+  isSavingPatient: boolean = false;
+  currentPatientId: number | null = null;
 
   constructor(
     private patientService: PatientService,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    // O authGuard já verifica autenticação antes de carregar o componente
+    // Aqui apenas carregamos os dados do usuário
+    
     // Verifica se o usuário é médico
     this.isMedico = this.authService.isMedico();
     
@@ -78,6 +107,7 @@ export class DashboardComponent implements OnInit {
    */
   loadPatient(id: number) {
     this.isLoading = true;
+    this.currentPatientId = id; // Define o ID do paciente
     
     if (this.isMedico) {
       this.patientService.getPatientCompletoLegacy(id).subscribe({
@@ -226,10 +256,251 @@ export class DashboardComponent implements OnInit {
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 
   goToSearch() {
     this.router.navigate(['/search']);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/home']);
+  }
+
+  // Métodos para edição de paciente
+  editPatientInfo() {
+    console.log('editPatientInfo() chamado');
+    console.log('patient:', this.patient);
+    console.log('currentPatientId:', this.currentPatientId);
+    console.log('isMedico:', this.isMedico);
+    
+    if (!this.patient) {
+      console.error('Paciente não encontrado');
+      alert('Paciente não encontrado');
+      return;
+    }
+    
+    // Usa currentPatientId se disponível, caso contrário usa o ID do paciente
+    if (!this.currentPatientId) {
+      if (this.patient.id) {
+        this.currentPatientId = this.patient.id;
+        console.log('Usando ID do paciente como fallback:', this.currentPatientId);
+      } else {
+        console.error('ID do paciente não encontrado');
+        alert('ID do paciente não encontrado');
+        return;
+      }
+    }
+    
+    // Inicializa os campos do formulário com os dados do paciente
+    this.editPatientNome = this.patient.nome || '';
+    this.editPatientAlergias = this.patient.alergias ? [...this.patient.alergias] : [];
+    this.editPatientDoencas = this.patient.doencas ? [...this.patient.doencas] : [];
+    this.editPatientMedicamentos = this.patient.medicamentos ? [...this.patient.medicamentos] : [];
+    
+    // Parse contato de emergência
+    this.editPatientContatos = [];
+    if (this.patient.contatoEmergencia) {
+      const contatos = this.getContatosEmergencia(this.patient.contatoEmergencia);
+      contatos.forEach(contato => {
+        const parts = contato.split(' - ');
+        if (parts.length >= 2) {
+          this.editPatientContatos.push({
+            nome: parts[0],
+            telefone: parts.slice(1).join(' - ')
+          });
+        }
+      });
+    }
+    
+    this.editPatientTipoSanguineo = this.patient.tipoSanguineo || '';
+    this.editPatientCirurgias = this.patient.cirurgias ? [...this.patient.cirurgias] : [];
+    this.editPatientInternacoes = this.patient.internacoes ? [...this.patient.internacoes] : [];
+    this.editPatientAlteracoesExames = [];
+    this.editPatientHistoricoExames = this.patient.exames ? [...this.patient.exames] : [];
+    
+    // Limpa campos de input
+    this.editPatientAlergiaInput = '';
+    this.editPatientDoencaInput = '';
+    this.editPatientMedicamentoInput = '';
+    this.editPatientContatoNome = '';
+    this.editPatientContatoTelefone = '';
+    this.editPatientCirurgiaInput = '';
+    this.editPatientInternacaoInput = '';
+    this.editPatientAlteracaoInput = '';
+    this.editPatientExameInput = '';
+    this.editPatientErrorMessage = '';
+    
+    // Abre o modal
+    console.log('Abrindo modal - showEditPatientModal será true');
+    this.showEditPatientModal = true;
+    console.log('showEditPatientModal após setar:', this.showEditPatientModal);
+    
+    // Força detecção de mudanças
+    this.cdr.detectChanges();
+    console.log('Change detection executado');
+  }
+
+  closeEditPatientModal() {
+    this.showEditPatientModal = false;
+    this.editPatientNome = '';
+    this.editPatientAlergias = [];
+    this.editPatientAlergiaInput = '';
+    this.editPatientDoencas = [];
+    this.editPatientDoencaInput = '';
+    this.editPatientMedicamentos = [];
+    this.editPatientMedicamentoInput = '';
+    this.editPatientContatos = [];
+    this.editPatientContatoNome = '';
+    this.editPatientContatoTelefone = '';
+    this.editPatientTipoSanguineo = '';
+    this.editPatientCirurgias = [];
+    this.editPatientCirurgiaInput = '';
+    this.editPatientInternacoes = [];
+    this.editPatientInternacaoInput = '';
+    this.editPatientAlteracoesExames = [];
+    this.editPatientAlteracaoInput = '';
+    this.editPatientHistoricoExames = [];
+    this.editPatientExameInput = '';
+    this.editPatientErrorMessage = '';
+  }
+
+  // Métodos auxiliares para arrays de paciente
+  addPatientAlergia() {
+    if (this.editPatientAlergiaInput.trim()) {
+      this.editPatientAlergias.push(this.editPatientAlergiaInput.trim());
+      this.editPatientAlergiaInput = '';
+    }
+  }
+
+  removePatientAlergia(index: number) {
+    this.editPatientAlergias.splice(index, 1);
+  }
+
+  addPatientDoenca() {
+    if (this.editPatientDoencaInput.trim()) {
+      this.editPatientDoencas.push(this.editPatientDoencaInput.trim());
+      this.editPatientDoencaInput = '';
+    }
+  }
+
+  removePatientDoenca(index: number) {
+    this.editPatientDoencas.splice(index, 1);
+  }
+
+  addPatientMedicamento() {
+    if (this.editPatientMedicamentoInput.trim()) {
+      this.editPatientMedicamentos.push(this.editPatientMedicamentoInput.trim());
+      this.editPatientMedicamentoInput = '';
+    }
+  }
+
+  removePatientMedicamento(index: number) {
+    this.editPatientMedicamentos.splice(index, 1);
+  }
+
+  addPatientContato() {
+    if (this.editPatientContatoNome.trim() && this.editPatientContatoTelefone.trim()) {
+      this.editPatientContatos.push({
+        nome: this.editPatientContatoNome.trim(),
+        telefone: this.editPatientContatoTelefone.trim()
+      });
+      this.editPatientContatoNome = '';
+      this.editPatientContatoTelefone = '';
+    }
+  }
+
+  removePatientContato(index: number) {
+    this.editPatientContatos.splice(index, 1);
+  }
+
+  addPatientCirurgia() {
+    if (this.editPatientCirurgiaInput.trim()) {
+      this.editPatientCirurgias.push(this.editPatientCirurgiaInput.trim());
+      this.editPatientCirurgiaInput = '';
+    }
+  }
+
+  removePatientCirurgia(index: number) {
+    this.editPatientCirurgias.splice(index, 1);
+  }
+
+  addPatientInternacao() {
+    if (this.editPatientInternacaoInput.trim()) {
+      this.editPatientInternacoes.push(this.editPatientInternacaoInput.trim());
+      this.editPatientInternacaoInput = '';
+    }
+  }
+
+  removePatientInternacao(index: number) {
+    this.editPatientInternacoes.splice(index, 1);
+  }
+
+  addPatientAlteracaoExame() {
+    if (this.editPatientAlteracaoInput.trim()) {
+      this.editPatientAlteracoesExames.push(this.editPatientAlteracaoInput.trim());
+      this.editPatientAlteracaoInput = '';
+    }
+  }
+
+  removePatientAlteracaoExame(index: number) {
+    this.editPatientAlteracoesExames.splice(index, 1);
+  }
+
+  addPatientHistoricoExame() {
+    if (this.editPatientExameInput.trim()) {
+      this.editPatientHistoricoExames.push(this.editPatientExameInput.trim());
+      this.editPatientExameInput = '';
+    }
+  }
+
+  removePatientHistoricoExame(index: number) {
+    this.editPatientHistoricoExames.splice(index, 1);
+  }
+
+  savePatientInfo() {
+    this.editPatientErrorMessage = '';
+    this.isSavingPatient = true;
+
+    if (!this.editPatientNome || !this.currentPatientId) {
+      this.editPatientErrorMessage = 'Erro: dados inválidos.';
+      this.isSavingPatient = false;
+      return;
+    }
+
+    // Preparar dados para atualização
+    const updateData: any = {
+      nome: this.editPatientNome,
+      alergias: this.editPatientAlergias.length > 0 ? this.editPatientAlergias : undefined,
+      doencas_cronicas: this.editPatientDoencas.length > 0 ? this.editPatientDoencas : undefined,
+      medicamentos_continuos: this.editPatientMedicamentos.length > 0 ? this.editPatientMedicamentos : undefined,
+      contatos_emergencia: this.editPatientContatos.length > 0 ? this.editPatientContatos : undefined,
+      informacoes_privadas: {
+        tipo_sanguineo: this.editPatientTipoSanguineo || undefined,
+        cirurgias: this.editPatientCirurgias.length > 0 ? this.editPatientCirurgias : undefined,
+        internacoes_passadas: this.editPatientInternacoes.length > 0 ? this.editPatientInternacoes : undefined,
+        alteracoes_exames: this.editPatientAlteracoesExames.length > 0 ? this.editPatientAlteracoesExames : undefined,
+        historico_exames: this.editPatientHistoricoExames.length > 0 ? this.editPatientHistoricoExames : undefined
+      }
+    };
+
+    // Chamar API para atualizar
+    this.patientService.updatePatient(this.currentPatientId, updateData).subscribe({
+      next: (updatedPatient) => {
+        // Recarrega os dados do paciente
+        if (this.currentPatientId) {
+          this.loadPatient(this.currentPatientId);
+        }
+        this.closeEditPatientModal();
+        this.isSavingPatient = false;
+      },
+      error: (error) => {
+        console.error('Erro ao atualizar paciente:', error);
+        this.editPatientErrorMessage = 'Erro ao atualizar informações. Tente novamente.';
+        this.isSavingPatient = false;
+      }
+    });
   }
 }

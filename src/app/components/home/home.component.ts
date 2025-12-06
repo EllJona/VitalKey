@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +13,8 @@ import { ApiService } from '../../services/api.service';
 export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -49,18 +51,23 @@ export class HomeComponent implements OnInit {
   }
 
   goToPublicAccess() {
-    this.router.navigate(['/public/1']);
+    // Redireciona para a tela de pesquisa
+    this.router.navigate(['/search']);
   }
 
   goToDashboard() {
+    // O authGuard na rota já verifica autenticação
+    // Se não estiver autenticado, o guard redireciona para login
     this.router.navigate(['/dashboard']);
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 
   goToSearch() {
+    // Search é público, não precisa de autenticação
     this.router.navigate(['/search']);
   }
 }

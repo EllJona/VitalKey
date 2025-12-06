@@ -41,10 +41,14 @@ export class PublicAccessComponent implements OnInit {
   }
 
   goToLogin() {
-    this.router.navigate(['/login']);
+    // Salva o ID do paciente para retornar após o login
+    this.router.navigate(['/login'], { 
+      queryParams: { patientId: this.patientId } 
+    });
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 

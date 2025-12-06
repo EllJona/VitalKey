@@ -190,22 +190,22 @@ export class RegisterComponent implements OnInit {
     if (this.tipoPerfil === 'medico') {
       if (!this.email || !this.senha) {
         this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
-        return;
-      }
+      return;
+    }
 
-      if (this.senha.length < 8) {
-        this.errorMessage = 'A senha precisa ter pelo menos 8 caracteres.';
-        return;
-      }
+    if (this.senha.length < 8) {
+      this.errorMessage = 'A senha precisa ter pelo menos 8 caracteres.';
+      return;
+    }
 
-      if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(this.senha)) {
-        this.errorMessage = 'A senha precisa ter pelo menos 8 caracteres incluindo letras e números.';
-        return;
-      }
+    if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(this.senha)) {
+      this.errorMessage = 'A senha precisa ter pelo menos 8 caracteres incluindo letras e números.';
+      return;
+    }
 
-      if (this.senha !== this.confirmarSenha) {
-        this.errorMessage = 'As senhas não coincidem.';
-        return;
+    if (this.senha !== this.confirmarSenha) {
+      this.errorMessage = 'As senhas não coincidem.';
+      return;
       }
     }
 
@@ -227,12 +227,12 @@ export class RegisterComponent implements OnInit {
 
       // Criar médico
       this.authService.createMedico({
-        nome: this.nome,
+      nome: this.nome,
         especialidade: this.especialidade,
         crm: this.crm,
-        email: this.email,
+      email: this.email,
         senha: this.senha
-      }).subscribe({
+    }).subscribe({
         next: (medico) => {
           // Converte MedicoResponse para User e salva
           const user = {
@@ -251,7 +251,7 @@ export class RegisterComponent implements OnInit {
           this.errorMessage = 'Erro ao conectar com o servidor. Tente novamente.';
         }
       });
-    } else {
+        } else {
       // Criar paciente
       const patientData: Omit<Patient, 'id'> = {
         nome: this.nome,
@@ -272,12 +272,12 @@ export class RegisterComponent implements OnInit {
         next: (patient) => {
           // Após criar paciente, redireciona para login
           this.router.navigate(['/login'], { queryParams: { registered: true } });
-        },
-        error: (error) => {
+      },
+      error: (error) => {
           console.error('Erro ao registrar paciente:', error);
-          this.errorMessage = 'Erro ao conectar com o servidor. Tente novamente.';
-        }
-      });
+        this.errorMessage = 'Erro ao conectar com o servidor. Tente novamente.';
+      }
+    });
     }
   }
 
@@ -286,6 +286,7 @@ export class RegisterComponent implements OnInit {
   }
 
   goToHome() {
+    // Home é público, não precisa de autenticação
     this.router.navigate(['/home']);
   }
 }

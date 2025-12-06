@@ -20,8 +20,8 @@ export const routes: Routes = [
   },
   { 
     path: 'home', 
-    component: HomeComponent,
-    canActivate: [authGuard]
+    component: HomeComponent
+    // Home é público, não requer autenticação
   },
   { 
     path: 'dashboard', 
@@ -30,8 +30,8 @@ export const routes: Routes = [
   },
   { 
     path: 'search', 
-    component: SearchComponent,
-    canActivate: [roleGuard(['admin', 'profissional'])] // Apenas admin e médico podem buscar
+    component: SearchComponent
+    // Search é público, não requer autenticação
   },
   { path: '**', redirectTo: '/login' }
 ];

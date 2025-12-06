@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -11,16 +11,29 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   crm: string = '';
   senha: string = '';
   errorMessage: string = '';
   showPassword: boolean = false;
+  patientId: number | null = null;
+  returnUrl: string | null = null;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) {
+    // Não faz logout automático - permite que o usuário acesse a tela de login normalmente
+  }
+
+  ngOnInit() {
+    // Verifica se há parâmetros de retorno (patientId ou returnUrl)
+    this.route.queryParams.subscribe(params => {
+      this.patientId = params['patientId'] ? +params['patientId'] : null;
+      this.returnUrl = params['returnUrl'] || null;
+    });
+  }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -64,7 +77,17 @@ export class LoginComponent {
     this.authService.login(loginIdentifier, this.senha).subscribe({
       next: (success) => {
         if (success) {
-          this.router.navigate(['/home']);
+          // Verifica para onde redirecionar após login
+          if (this.patientId) {
+            // Se veio da tela de acesso público, volta para o perfil completo do paciente
+            this.router.navigate(['/dashboard'], { queryParams: { id: this.patientId } });
+          } else if (this.returnUrl) {
+            // Se há returnUrl (do authGuard), redireciona para lá
+            this.router.navigateByUrl(this.returnUrl);
+          } else {
+            // Caso padrão: vai para home
+            this.router.navigate(['/home']);
+          }
         } else {
           this.errorMessage = 'CRM/Email ou senha incorretos.';
         }
@@ -110,6 +133,7 @@ export class LoginComponent {
   }
 
   goToHome() {
+    // Permite navegar para home normalmente
     this.router.navigate(['/home']);
   }
 }
